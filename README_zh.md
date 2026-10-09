@@ -4,6 +4,13 @@
 
 原生 Rust 桌宠引擎。60fps 帧率无关物理，兼容 Shimeji 社区的 46 帧皮肤：把含 `shime1.png`~`shime46.png` 的文件夹放进皮肤目录就能用。
 
+## 下载
+
+从 [Releases](https://github.com/Mieluoxxx/shimeji-next/releases) 获取：
+
+- **macOS（Apple Silicon）**：`ShimejiNext-<版本>-arm64.dmg`。未经公证，首次打开请右键 → 打开。
+- **Windows（实验性）**：`ShimejiNext-<版本>-windows-x64-portable.zip`，解压后运行 `shimeji-next.exe`。Windows 端尚无原生平台层（不识别任务栏、不能与窗口互动），透明效果视显卡驱动而定。
+
 ## 开发
 
 ```bash
@@ -45,6 +52,10 @@ assets/
 ```
 
 ## 皮肤
+
+> **支持的格式**：仅支持常见的 PC 端 Shimeji-ee 46 帧格式（`shime1.png`~`shime46.png`）。
+> 手机端 Shimeji 应用导出的皮肤包（含 `manifest.json`、`animation.json` 与 `sprites/0000.webp`~`0069.webp` 的 70 帧格式）**不支持**。
+> 从 Shimeji-ee 发行包里取皮肤时，只需拷贝 `img/<皮肤名>/` 这个文件夹；包里的 `conf/actions.xml`、`behaviors.xml` 不会被读取。
 
 - 内置：`assets/skins/`，由 `assets/bundled-skins.txt` 决定打包哪些
 - 用户：`~/Library/Application Support/shimeji-next/skins/`（托盘「选择皮肤 → 打开皮肤文件夹」），同名覆盖内置

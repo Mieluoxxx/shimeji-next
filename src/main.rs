@@ -1,6 +1,9 @@
 //! 用法：shimeji-next [--assets <资源目录>] [--skin <皮肤名>]... [--debug]
 //! 资源目录含 i18n/ 与 skins/；开发时默认用项目内的 assets/。
 
+// 发布版的 Windows 程序不要附带控制台窗口
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
+
 use anyhow::Context as _;
 use shimeji_next::assets::{user_data_dir, Resources};
 use shimeji_next::settings::Settings;

@@ -1,0 +1,87 @@
+name: Build
+
+# 推送 v* 标签时构建并发布 Release；也可在 Actions 页面手动运行（只产出构件，不发布）
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --release
+
+  macos:
+    needs: test
+    runs-on: macos-14 # Apple Silicon 运行器，原生产出 arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build .app and dmg
+        run: ./build_app.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: target/dist/*.dmg
+          if-no-files-found: error
+
+  windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build exe
+        run: cargo build --release
+      # 便携版：exe 与 assets/ 同目录，解压即用（程序会在 exe 旁查找 assets）
+      - name: Package portable zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          STAGE="ShimejiNext-${VERSION}-windows-x64-portable"
+          mkdir -p "dist/$STAGE/assets/skins"
+          cp target/release/shimeji-next.exe "dist/$STAGE/"
+          cp -R assets/i18n assets/icon.png "dist/$STAGE/assets/"
+          while IFS= read -r line || [[ -n $line ]]; do
+            line=${line%%#*}
+            line=$(echo "$line" | xargs)
+            [[ -n $line ]] && cp -R "assets/skins/$line" "dist/$STAGE/assets/skins/"
+          done < assets/bundled-skins.txt
+          cp LICENSE README.md README_zh.md "dist/$STAGE/"
+          cd dist && 7z a -tzip "$STAGE.zip" "$STAGE" > /dev/null
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-portable
+          path: dist/*.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [macos, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
+          body: |
+            - **macOS (Apple Silicon)**：`*-arm64.dmg`，打开后把 App 拖进「应用程序」。未经公证，首次打开请右键 → 打开。
+            - **Windows（实验性）**：`*-windows-x64-portable.zip`，解压后运行 `shimeji-next.exe`。Windows 端尚无原生平台层（不识别任务栏、不能与窗口互动），透明效果视显卡驱动而定。

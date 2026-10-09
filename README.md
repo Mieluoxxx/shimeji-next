@@ -4,6 +4,13 @@ English | [简体中文](README_zh.md)
 
 A native Rust desktop mascot engine. Frame-rate-independent physics at 60fps, compatible with the Shimeji community's 46-frame skins: drop a folder containing `shime1.png`–`shime46.png` into the skins directory and it just works.
 
+## Download
+
+Get builds from [Releases](https://github.com/Mieluoxxx/shimeji-next/releases):
+
+- **macOS (Apple Silicon)**: `ShimejiNext-<version>-arm64.dmg`. Not notarized, so right-click → Open on first launch.
+- **Windows (experimental)**: `ShimejiNext-<version>-windows-x64-portable.zip`. Unzip and run `shimeji-next.exe`. There is no native Windows platform layer yet (taskbar and window interaction are not supported), and transparency depends on the GPU driver.
+
 ## Development
 
 ```bash
@@ -45,6 +52,10 @@ assets/
 ```
 
 ## Skins
+
+> **Supported format**: only the common PC Shimeji-ee 46-frame format (`shime1.png`–`shime46.png`) is supported.
+> Skin packs exported from the mobile Shimeji app (the 70-frame format with `manifest.json`, `animation.json` and `sprites/0000.webp`–`0069.webp`) are **not supported**.
+> When taking a skin from a Shimeji-ee distribution, copy only the `img/<skin name>/` folder; the bundled `conf/actions.xml` and `behaviors.xml` are not read.
 
 - Built-in: `assets/skins/`; `assets/bundled-skins.txt` decides which ones get packaged
 - User: `~/Library/Application Support/shimeji-next/skins/` (tray → Choose Skins → Open Skins Folder); a user skin overrides a built-in one with the same name
