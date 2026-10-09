@@ -1,0 +1,30 @@
+[package]
+name = "shimeji-next"
+version = "0.3.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+description = "原生 Rust 桌宠引擎：60fps 帧率无关物理，兼容 Shimeji 46 帧皮肤"
+
+[dependencies]
+anyhow = "1"
+winit = { version = "0.30", features = ["rwh_06"] }
+# softbuffer 的 macOS 后端不带 alpha 通道（CGImageAlphaInfo::NoneSkipFirst），
+# 透明窗口死路，改用 wgpu/Metal 原生合成
+wgpu = "25"
+pollster = "0.4"
+rand = "0.9"
+image = { version = "0.25", default-features = false, features = ["png"] }
+tray-icon = "0.26"
+serde = { version = "1", features = ["derive"] }
+toml = "0.9"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", features = ["NSArray", "NSGeometry", "NSEnumerator"] }
+objc2-app-kit = { version = "0.3", features = ["NSScreen", "NSView", "NSWindow", "NSResponder", "NSGraphics"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
